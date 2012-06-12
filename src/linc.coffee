@@ -1,51 +1,62 @@
+root = @
 Linc = exports? and @ or @Linc = {}
-
 Linc._functions = {}
+Linc._defaults = {
+  namespace : ''
+  context   : root
+}
 
 Linc.add = ->
   name      = arguments[0]
   options   = {}
   initFn    = arguments[ arguments.length - 1 ]
   functions = @_functions
+  nsNames   = []
 
   if isObject arguments[1]
     options = arguments[1]
 
-  register = ( ns ) ->
-    funcs = if ns then functions[ ns ] ?= {} else functions
-    funcs[ name ] = {
-      options : options
-      init : initFn
-    }
+  widget = { options: options, init: initFn }
 
   if ~name.indexOf '.'
-    nsNames = name.split('.')
+    nsNames = name.split '.'
     name    = nsNames.shift()
-    register ns for ns in nsNames
+  else if @_defaults.namespace
+    nsNames = @_defaults.namespace.split '.'
+
+  if nsNames
+    for ns in nsNames
+      @_functions[ ns ] ?= {}
+      @_functions[ ns ][ name ] = widget
   else
-    register()
+    @_functions[ name ] = widget
 
 Linc.run = ( o ) ->
   o ?= {}
-  scope = o.scope ? document
-  ns    = o.namespace ? []
-  all   = o.all
+  context   = o.context ? @_defaults.context
+  namespace = o.namespace ? @_defaults.namespace
+  all       = o.all
 
   if all
-    ns = for own key of @_functions when isObject key
-      key
+    namespace = for own name, namespace of @_functions when not isFunction ns.init
+      name
   else
-    ns = if isArray ns then ns else [ ns ]
+    namespace = if isArray namespace then namespace else [ namespace ]
 
-  runFuncs namespaces for namespaces in ns
+  runFuncs ns for ns in namespace
   runFuncs()
 
-  runFuncs = ( namespace ) ->
-    funcs = @_functions[ namespace ] ? @_functions
-    for own name, widget of funcs
+  runFuncs = ( ns ) ->
+    funcs = @_functions[ ns ] ? @_functions
+    for own name, widget of funcs when isFunction( widget.init )
       unless widget.options.once and widget.called
-        widget.init.call( scope )
+        widget.init.call( context )
         widget.called = true
+
+Linc.setDefaults = ( o ) ->
+  for own option, value of o
+    @_defaults[ option ] = value
+  @_defaults
 
 # Helpers
 isArray = Array.isArray ? ( o ) -> Object::toString.call( o ) is '[object Array]'
