@@ -54,17 +54,37 @@ describe 'run', ->
       expect( bCalls ).toBe( 1 )
 
   describe 'running with namespaces', ->
-    it 'should call specified namespace and unnamespaced', ->
+    w_fn = null
+    beforeEach ->
       a_fn = jasmine.createSpy()
+      w_fn = jasmine.createSpy()
       x_fn = jasmine.createSpy()
       y_fn = jasmine.createSpy()
       Linc.add 'widgetA', a_fn
+      Linc.add 'widgetW.namespaceW', w_fn
       Linc.add 'widgetX.namespaceA', x_fn
       Linc.add 'widgetY.namespaceB', y_fn
+
+    it 'should call specified namespace and unscoped', ->
       Linc.run({ namespace: 'namespaceA' })
       expect( a_fn ).toHaveBeenCalled()
+      expect( w_fn ).not.toHaveBeenCalled()
       expect( x_fn ).toHaveBeenCalled()
       expect( y_fn ).not.toHaveBeenCalled()
+
+    it 'should call specified namespaces in array and unscoped', ->
+      Linc.run({ namespace: ['namespaceA', 'namespaceB'] })
+      expect( a_fn ).toHaveBeenCalled()
+      expect( x_fn ).toHaveBeenCalled()
+      expect( y_fn ).toHaveBeenCalled()
+      expect( w_fn ).not.toHaveBeenCalled()
+
+    it 'should call all namespaces when "all" is set', ->
+      Linc.run({ all: true })
+      expect( a_fn ).toHaveBeenCalled()
+      expect( x_fn ).toHaveBeenCalled()
+      expect( y_fn ).toHaveBeenCalled()
+      expect( w_fn ).toHaveBeenCalled()
 
   describe 'running with contexts', ->
     it 'should use default context if non specified', ->
