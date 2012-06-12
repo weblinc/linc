@@ -18,12 +18,13 @@ API
 
 Widget Options
 ====
-`once` This widget is only called once during its life
+* `once` This widget is only called once during its life
 
 Run Options
 ====
-`namespace` Calls all widgets that are within `namespace`, as well as unnamespaced widgets. Can be a namespace string, or an array of strings for multiple namespaces.
-`all` Calls all widgets, namespaced and unscoped.
+* `context` Each widget's associated function is called with `this` as `context`
+* `namespace` Calls all widgets that are within `namespace`, as well as unnamespaced widgets. Can be a namespace string, or an array of strings for multiple namespaces.
+* `all` Calls all widgets, namespaced and unscoped.
 
 Examples
 ====
