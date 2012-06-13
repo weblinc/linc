@@ -14,15 +14,15 @@ API
   * `validation.signup` Add the validation widget to the signup namespace
   * `validation.signup.signin` Add the validation widget to both signup and signin namespaces
 
-`Linc.run( context, [ options ] )` Executes all functions with `context`, optionally passing an options object.
+`Linc.run([ options ])` Executes all functions that are unscoped, and takes an optional options object to call specific namespaces, pass in a context, or execute all stored functions (options detailed below).
 
 Widget Options
 ====
-* `once` This widget is only called once during its life
+* `once` This widget is only called once during its life.
 
 Run Options
 ====
-* `context` Each widget's associated function is called with `this` as `context`
+* `context` Each widget's associated function is called with `this` as `context`.
 * `namespace` Calls all widgets that are within `namespace`, as well as unnamespaced widgets. Can be a namespace string, or an array of strings for multiple namespaces.
 * `all` Calls all widgets, namespaced and unscoped.
 
