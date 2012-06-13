@@ -36,9 +36,22 @@ Examples
     context: $('#content')
   });
 
-  // Adds a validation widget that can only be called once.
-  Linc.add( 'validation', { once: true }, function () {
+  // Adds a validation widget 
+  Linc.add( 'validation', function () {
     this.find( 'form.validate' ).validate();
+  });
+
+  // Adds a selection toggle widget that can only be called once.
+  Linc.add( 'selectParent', { once: true }, function () {
+    this.find( 'a.select-parent' ).click(function ( e ) {
+      $( this )
+        .closest( 'ul' )
+          .find( 'selected' ).removeClass( 'selected' )
+          .end()
+        .end()
+        .parent().addClass( 'selected' );
+      e.preventDefault();
+    });
   });
 
   // Adds the register widget to the account namespace
@@ -49,12 +62,13 @@ Examples
     });
   });
 
-  // Runs all unscoped widgets -- just 'validation' in this case, with
-  // default scope of the #content element
+  // Runs all unscoped widgets -- just 'validation' and 'selectParent' in
+  // this case, with default scope of the #content element
   Linc.run();
 
   // Runs all unscoped and widgets in the namespace 'account' --
-  // both 'register' and 'validation' functions are executed with 'document' as context
+  // both 'register' and 'validation' functions are executed, since
+  // 'selectParent' is only called once, with 'document' as context
   Linc.run({ context: document, namespace: 'account' } );
 ```
 
