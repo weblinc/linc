@@ -22,7 +22,7 @@ Widget Options
 
 Run Options
 ====
-* `context` Each widget's associated function is called with `this` as `context`.
+* `context` Each widget's associated function is called with `this` as `context`. Defaults to `Linc` in node and `window` on the browser.
 * `namespace` Calls all widgets that are within `namespace`, as well as unnamespaced widgets. Can be a namespace string, or an array of strings for multiple namespaces.
 * `all` Calls all widgets, namespaced and unscoped.
 
@@ -30,6 +30,12 @@ Examples
 ====
 
 ```javascript
+
+  // Set the default context to be a header div in the browser
+  Linc.setDefaults({
+    context: document.getElementById('header')
+  });
+
   // Adds a validation widget that can only be called once.
   Linc.add( 'validation', { once: true }, function () {
     // ...
@@ -40,7 +46,8 @@ Examples
     // ...
   });
 
-  // Runs all unscoped widgets -- just 'validation' in this case
+  // Runs all unscoped widgets -- just 'validation' in this case, with
+  // default scope of the #header element
   Linc.run();
 
   // Runs all unscoped and widgets in the namespace 'account' --
