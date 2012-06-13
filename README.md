@@ -33,21 +33,24 @@ Examples
 
   // Set the default context to be a header div in the browser
   Linc.setDefaults({
-    context: document.getElementById('header')
+    context: $('#content')
   });
 
   // Adds a validation widget that can only be called once.
   Linc.add( 'validation', { once: true }, function () {
-    // ...
+    this.find( 'form.validate' ).validate();
   });
 
   // Adds the register widget to the account namespace
   Linc.add( 'register.account', function () {
-    // ...
+    this.find( 'form.ajaxSubmit' ).submit(function( e ) {
+      $( this ).ajaxSubmit();
+      e.preventDefault();
+    });
   });
 
   // Runs all unscoped widgets -- just 'validation' in this case, with
-  // default scope of the #header element
+  // default scope of the #content element
   Linc.run();
 
   // Runs all unscoped and widgets in the namespace 'account' --
