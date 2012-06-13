@@ -45,7 +45,7 @@
   };
 
   Linc.run = function() {
-    var all, args, context, funcs, module, nSpace, name, nameObj, namespaceOnly, ns, o, _i, _len, _ref, _ref2, _ref3;
+    var all, args, context, data, funcs, key, module, nSpace, name, nameObj, namespaceOnly, ns, o, _i, _len, _ref, _ref2, _ref3, _ref4;
     args = arguments;
     nameObj = args.length && !isObject(args[0]) ? parseNames(args[0]) : {};
     name = nameObj.name;
@@ -53,31 +53,36 @@
     o = isObject(args[args.length - 1]) ? args[args.length - 1] : {};
     context = (_ref2 = o.context) != null ? _ref2 : this._defaults.context;
     all = o.all;
+    data = (_ref3 = o.data) != null ? _ref3 : [];
     namespaceOnly = o.namespaceOnly;
     if (all) {
       nSpace = (function() {
-        var _ref3, _results;
-        _ref3 = this._functions;
+        var _ref4, _results;
+        _ref4 = this._functions;
         _results = [];
-        for (name in _ref3) {
-          if (!__hasProp.call(_ref3, name)) continue;
-          ns = _ref3[name];
-          if (!isFunction(ns.init)) _results.push(name);
+        for (key in _ref4) {
+          if (!__hasProp.call(_ref4, key)) continue;
+          ns = _ref4[key];
+          if (!isFunction(ns.init)) _results.push(key);
         }
         return _results;
       }).call(this);
     }
     if (!namespaceOnly) nSpace.push(null);
-    for (_i = 0, _len = nSpace.length; _i < _len; _i++) {
-      ns = nSpace[_i];
-      funcs = (_ref3 = this._functions[ns]) != null ? _ref3 : this._functions;
-      for (name in funcs) {
-        if (!__hasProp.call(funcs, name)) continue;
-        module = funcs[name];
-        if (isFunction(module.init)) {
-          if (!(module.options.once && module.called)) {
-            module.init.call(context);
-            module.called = true;
+    if (name) {
+      this.get(args[0]).init.call(context, data);
+    } else {
+      for (_i = 0, _len = nSpace.length; _i < _len; _i++) {
+        ns = nSpace[_i];
+        funcs = (_ref4 = this._functions[ns]) != null ? _ref4 : this._functions;
+        for (name in funcs) {
+          if (!__hasProp.call(funcs, name)) continue;
+          module = funcs[name];
+          if (isFunction(module.init)) {
+            if (!(module.options.once && module.called)) {
+              module.init.call(context, data);
+              module.called = true;
+            }
           }
         }
       }
