@@ -35,27 +35,31 @@ Linc.get = ( name ) ->
 Linc.run = () ->
   args    = arguments
   nameObj = if args.length and not isObject( args[0] ) then parseNames( args[0] ) else {}
-  
+
   name   = nameObj.name
   nSpace = nameObj.namespaces ? @_defaults.namespace.slice 0
 
   o       = if isObject( args[ args.length - 1 ] ) then args[ args.length - 1 ] else {}
-  context = o.context   ? @_defaults.context
+  context = o.context ? @_defaults.context
   all     = o.all
+  data    = o.data ? []
   namespaceOnly = o.namespaceOnly
 
   if all
-    nSpace = for own name, ns of @_functions when not isFunction ns.init
-      name
+    nSpace = for own key, ns of @_functions when not isFunction ns.init
+      key
 
   nSpace.push null unless namespaceOnly
 
-  for ns in nSpace
-    funcs = @_functions[ ns ] ? @_functions
-    for own name, module of funcs when isFunction( module.init )
-      unless module.options.once and module.called
-        module.init.call( context )
-        module.called = true
+  if name
+    @get( args[0] ).init.call( context, data )
+  else
+    for ns in nSpace
+      funcs = @_functions[ ns ] ? @_functions
+      for own name, module of funcs when isFunction( module.init )
+        unless module.options.once and module.called
+          module.init.call( context, data )
+          module.called = true
   Linc
 
 Linc.setDefaults = ( o ) ->

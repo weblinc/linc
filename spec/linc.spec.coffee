@@ -1,6 +1,7 @@
 Linc = require('../src/linc')
 root = if module? then Linc else @
 context = null
+argTest = null
 bCalls = 0
 a_fn = jasmine.createSpy()
 b_fn = () -> bCalls++
@@ -8,6 +9,7 @@ x_fn = jasmine.createSpy()
 y_fn = jasmine.createSpy()
 z_fn = () ->
   context = @
+arg_fn = ( arg ) -> argTest = arg
 
 b_namespace = { namespace: Math.random() }
 
@@ -62,12 +64,18 @@ describe 'run', ->
 
   describe 'running with namespaces', ->
     w_fn = null
+    v_fn = null
+    u_fn = null
     beforeEach ->
       a_fn = jasmine.createSpy()
+      u_fn = jasmine.createSpy()
+      v_fn = jasmine.createSpy()
       w_fn = jasmine.createSpy()
       x_fn = jasmine.createSpy()
       y_fn = jasmine.createSpy()
       Linc.add 'widgetA', a_fn
+      Linc.add 'widgetU', u_fn
+      Linc.add 'widgetV.namespaceW', v_fn
       Linc.add 'widgetW.namespaceW', w_fn
       Linc.add 'widgetX.namespaceA', x_fn
       Linc.add 'widgetY.namespaceB', y_fn
@@ -99,6 +107,28 @@ describe 'run', ->
       expect( x_fn ).not.toHaveBeenCalled()
       expect( y_fn ).not.toHaveBeenCalled()
       expect( w_fn ).toHaveBeenCalled()
+
+    it 'should call a specific module if no ns given', ->
+      Linc.run 'widgetA'
+      expect( a_fn ).toHaveBeenCalled()
+      expect( u_fn ).not.toHaveBeenCalled()
+      expect( x_fn ).not.toHaveBeenCalled()
+      expect( y_fn ).not.toHaveBeenCalled()
+      expect( w_fn ).not.toHaveBeenCalled()
+    
+    it 'should call a specific namespaced module if name and ns given', ->
+      Linc.run 'widgetV.namespaceW'
+      expect( v_fn ).toHaveBeenCalled()
+      expect( a_fn ).not.toHaveBeenCalled()
+      expect( x_fn ).not.toHaveBeenCalled()
+      expect( y_fn ).not.toHaveBeenCalled()
+      expect( w_fn ).not.toHaveBeenCalled()
+
+  describe 'data passing', ->
+    it 'should pass in data to the functions', ->
+      Linc.add 'dataTest', arg_fn
+      Linc.run 'dataTest', { data: 'testData!' }
+      expect(argTest).toEqual( 'testData!' )
 
   describe 'running with contexts', ->
     it 'should use default context if non specified', ->
@@ -150,4 +180,3 @@ describe 'get', ->
     expect( Linc.get( 'testGetD.scope' )).toBe wD
     expect( Linc.get( 'testGetC.scope' ).init).toBe c_fn
     expect( Linc.get( 'testGetD.scope' ).init).toBe d_fn
-

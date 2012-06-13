@@ -27,6 +27,7 @@ Run Options
 * `context` Each widget's associated function is called with `this` as `context`. Defaults to `Linc` in node and `window` on the browser.
 * `all` Calls all widgets, namespaced and unscoped.
 * `namespaceOnly` Calls only the namespace defined
+* `data` Data to be sent as arguments in function calls
 
 Examples
 ====
@@ -46,12 +47,7 @@ Examples
   // Adds a selection toggle widget that can only be called once.
   Linc.add( 'selectParent', { once: true }, function () {
     this.find( 'a.select-parent' ).click(function ( e ) {
-      $( this )
-        .closest( 'ul' )
-          .find( 'selected' ).removeClass( 'selected' )
-          .end()
-        .end()
-        .parent().addClass( 'selected' );
+      $( this ).parent().addClass( 'selected' );
       e.preventDefault();
     });
   });
@@ -72,6 +68,15 @@ Examples
   // both 'register' and 'validation' functions are executed, since
   // 'selectParent' is only called once, with 'document' as context
   Linc.run('.account', { context: document });
+
+  // You can also pass data to all modules called
+  Linc.add('header.updates', function ( data ) {
+    $('#header h1').update( data.title );
+  });
+  $.ajax({
+    url: 'http://localhost',
+    success: function ( data ) { Linc.run('.updates', { data: data }) }
+  });
 ```
 
 Development
