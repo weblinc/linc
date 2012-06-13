@@ -3,7 +3,7 @@ root = if module? then Linc else @
 context = null
 bCalls = 0
 a_fn = jasmine.createSpy()
-b_fn = () -> bCalls++;
+b_fn = () -> bCalls++
 x_fn = jasmine.createSpy()
 y_fn = jasmine.createSpy()
 z_fn = () ->
@@ -13,8 +13,8 @@ b_namespace = { namespace: Math.random() }
 
 describe 'add', ->
   describe 'unnamespaced widgets', ->
-    Linc.add 'widgetA', a_fn
-    Linc.add 'widgetB', { once : true }, b_fn
+    wA = Linc.add 'widgetA', a_fn
+    wB = Linc.add 'widgetB', { once : true }, b_fn
 
     it 'should add widget to root of fn store', ->
       expect( Linc._functions.widgetA ).toBeTruthy()
@@ -24,6 +24,13 @@ describe 'add', ->
       expect( Linc._functions.widgetB.init ).toBe b_fn
       expect( Linc._functions.widgetA.options.once ).toBeFalsy()
       expect( Linc._functions.widgetB.options.once ).toBeTruthy()
+    it 'should return the module when adding', ->
+      wA.testVal = 'death metal'
+      wB.testVal = 'rocks'
+      expect( Linc._functions.widgetA.init ).toBe a_fn
+      expect( Linc._functions.widgetB.init ).toBe b_fn
+      expect( Linc._functions.widgetA.testVal ).toEqual wA.testVal
+      expect( Linc._functions.widgetB.testVal ).toEqual wB.testVal
 
   describe 'widgets with single namespace', ->
     Linc.add 'widgetX.namespaceA', x_fn
@@ -66,14 +73,14 @@ describe 'run', ->
       Linc.add 'widgetY.namespaceB', y_fn
 
     it 'should call specified namespace and unscoped', ->
-      Linc.run({ namespace: 'namespaceA' })
+      Linc.run('.namespaceA')
       expect( a_fn ).toHaveBeenCalled()
       expect( w_fn ).not.toHaveBeenCalled()
       expect( x_fn ).toHaveBeenCalled()
       expect( y_fn ).not.toHaveBeenCalled()
 
     it 'should call specified namespaces in array and unscoped', ->
-      Linc.run({ namespace: ['namespaceA', 'namespaceB'] })
+      Linc.run('.namespaceA.namespaceB')
       expect( a_fn ).toHaveBeenCalled()
       expect( x_fn ).toHaveBeenCalled()
       expect( y_fn ).toHaveBeenCalled()
@@ -86,13 +93,20 @@ describe 'run', ->
       expect( y_fn ).toHaveBeenCalled()
       expect( w_fn ).toHaveBeenCalled()
 
+    it 'should call only the namespace, not unscoped', ->
+      Linc.run('.namespaceW', { namespaceOnly: true })
+      expect( a_fn ).not.toHaveBeenCalled()
+      expect( x_fn ).not.toHaveBeenCalled()
+      expect( y_fn ).not.toHaveBeenCalled()
+      expect( w_fn ).toHaveBeenCalled()
+
   describe 'running with contexts', ->
     it 'should use default context if non specified', ->
-      Linc.run({ namespace: 'namespaceA' })
+      Linc.run('.namespaceA')
       expect( context ).toBe( Linc._defaults.context )
     it 'should pass in the correct context', ->
       testContext = { test: 'context' }
-      Linc.run({ namespace: 'namespaceA', context: testContext })
+      Linc.run('.namespaceA', { context: testContext })
       expect( context ).toBe( testContext )
 
 describe 'setDefaults', ->
@@ -118,3 +132,22 @@ describe 'setDefaults', ->
     Linc.run()
     expect( Linc._functions.testNS.megaman ).toBeTruthy()
     expect( nsSpy ).toHaveBeenCalled()
+
+describe 'get', ->
+  it 'should return the correct unscoped module', ->
+    Linc.setDefaults { namespace: [] }
+    wA = Linc.add 'testGetA', a_fn
+    wB = Linc.add 'testGetB', b_fn
+    expect( Linc.get( 'testGetA' )).toBe wA
+    expect( Linc.get( 'testGetB' )).toBe wB
+    expect( Linc.get( 'testGetA' ).init).toBe a_fn
+    expect( Linc.get( 'testGetB' ).init).toBe b_fn
+  
+  it 'should return the correct scoped module', ->
+    wC = Linc.add 'testGetC.scope', ( c_fn = jasmine.createSpy() )
+    wD = Linc.add 'testGetD.scope', ( d_fn = jasmine.createSpy() )
+    expect( Linc.get( 'testGetC.scope' )).toBe wC
+    expect( Linc.get( 'testGetD.scope' )).toBe wD
+    expect( Linc.get( 'testGetC.scope' ).init).toBe c_fn
+    expect( Linc.get( 'testGetD.scope' ).init).toBe d_fn
+

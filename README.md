@@ -10,11 +10,13 @@ Installation
 API
 ====
 
-`Linc.add( name, [ options ], fn )` Adds a widget with string `name`, optional options `object`, and run function `fn`. Widgets can be scoped by adding period separated namespaces in the name, ex:
+`Linc.add( name, [ options ], fn )` Adds a widget with string `name`, optional options `object`, and run function `fn`. Widgets can be scoped by adding period separated namespaces in the name. Returns the module.
   * `validation.signup` Add the validation widget to the signup namespace
   * `validation.signup.signin` Add the validation widget to both signup and signin namespaces
 
-`Linc.run([ options ])` Executes all functions that are unscoped, and takes an optional options object to call specific namespaces, pass in a context, or execute all stored functions (options detailed below).
+`Linc.run( name, [ options ])` Executes all functions that are unscoped, and takes an optional options object to call specific namespaces, pass in a context, or execute all stored functions (options detailed below).
+
+`Linc.get( name )` Retrieves a module with `name` -- can be a name along with a namespace, like `widgetName.scope`, which will return the `widgetName` module in the `scope` namespace.
 
 Widget Options
 ====
@@ -23,8 +25,8 @@ Widget Options
 Run Options
 ====
 * `context` Each widget's associated function is called with `this` as `context`. Defaults to `Linc` in node and `window` on the browser.
-* `namespace` Calls all widgets that are within `namespace`, as well as unnamespaced widgets. Can be a namespace string, or an array of strings for multiple namespaces.
 * `all` Calls all widgets, namespaced and unscoped.
+* `namespaceOnly` Calls only the namespace defined
 
 Examples
 ====
@@ -69,7 +71,7 @@ Examples
   // Runs all unscoped and widgets in the namespace 'account' --
   // both 'register' and 'validation' functions are executed, since
   // 'selectParent' is only called once, with 'document' as context
-  Linc.run({ context: document, namespace: 'account' } );
+  Linc.run('.account', { context: document });
 ```
 
 Development

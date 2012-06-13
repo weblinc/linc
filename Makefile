@@ -1,6 +1,6 @@
-all: test linc
+all: test build
 test:
 	jasmine-node --coffee --color --verbose .
-linc:
+build:
 	coffee -c -o ./ src/linc.coffee
 	smoosh make/build.json
