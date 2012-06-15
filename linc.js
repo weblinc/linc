@@ -7,7 +7,7 @@
   */
 
   var Linc, isArray, isFunction, isObject, root, _ref;
-  var __hasProp = Object.prototype.hasOwnProperty;
+  var __slice = Array.prototype.slice, __hasProp = Object.prototype.hasOwnProperty;
 
   root = this;
 
@@ -21,10 +21,11 @@
   };
 
   Linc.add = function() {
-    var initFn, module, nMap, ns, options, _base, _i, _len, _ref, _ref2;
-    nMap = this._parseNames(arguments[0]);
-    options = this._makeOptions(arguments[1]);
-    initFn = arguments[arguments.length - 1];
+    var args, initFn, module, nMap, ns, options, _base, _i, _len, _ref, _ref2;
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    nMap = this._parseNames(args[0]);
+    options = this._makeOptions(args[1]);
+    initFn = args.pop();
     if (!nMap.name) return null;
     module = {
       options: options,
@@ -51,9 +52,9 @@
 
   Linc.run = function() {
     var all, args, context, data, key, module, nMap, name, ns, nsOnly, o, _i, _len, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
-    args = arguments;
-    nMap = this._parseNames(arguments[0]);
-    o = this._makeOptions(arguments[arguments.length - 1]);
+    args = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+    nMap = this._parseNames(args[0]);
+    o = this._makeOptions(args[args.length - 1]);
     context = (_ref = o.context) != null ? _ref : this._defaults.context;
     all = o.all;
     data = o.data;

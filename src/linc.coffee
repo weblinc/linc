@@ -9,17 +9,16 @@ js execution controller
 root = @
 Linc = exports? and @ or @Linc = {}
 Linc._functions = {}
-Linc._defaults = {
+Linc._defaults =
   namespace : []
   context   : root
-}
 
 # Linc Methods
 
-Linc.add = ->
-  nMap = @_parseNames arguments[0]
-  options = @_makeOptions arguments[1]
-  initFn  = arguments[ arguments.length - 1 ]
+Linc.add = ( args... ) ->
+  nMap    = @_parseNames args[0]
+  options = @_makeOptions args[1]
+  initFn  = args.pop()
 
   return null unless nMap.name
 
@@ -39,10 +38,9 @@ Linc.get = ( name ) ->
   nMap = @_parseNames name
   ( @_functions[ nMap.namespaces.shift() ] ? @_functions )[ nMap.name ]
 
-Linc.run = () ->
-  args    = arguments
-  nMap    = @_parseNames arguments[0]
-  o       = @_makeOptions arguments[ arguments.length - 1 ]
+Linc.run = ( args... ) ->
+  nMap    = @_parseNames args[0]
+  o       = @_makeOptions args[ args.length - 1 ]
   context = o.context ? @_defaults.context
   all     = o.all
   data    = o.data
@@ -58,7 +56,7 @@ Linc.run = () ->
     @_call @get( args[0] ), context, data
   else
     for ns in nMap.namespaces
-      for own name, module of ( @_functions[ ns ] ? @_functions )
+      for own name, module of @_functions[ ns ] ? @_functions
         @_call module, context, data
   @
 
@@ -75,11 +73,11 @@ Linc.setDefaults = ( o ) ->
 Linc._call = ( module, context, data ) ->
   if isFunction( module.init )
     unless module.options.once and module.called
-      module.init.call( context, data )
-      module.called++;
+      module.init.call context, data
+      module.called++
 
 Linc._parseNames = ( s ) ->
-  s = '' if not s or isObject( s )
+  s = '' if not s or isObject s 
   split = s.match /^([^\.]*)?(?:\.(.+))?$/
   returnObj =
     name       : split[1]
