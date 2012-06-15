@@ -14,9 +14,11 @@ API
   * `validation.signup` Add the validation widget to the signup namespace
   * `validation.signup.signin` Add the validation widget to both signup and signin namespaces
 
-`Linc.run( name, [ options ])` Executes all functions that are unscoped, and takes an optional options object to call specific namespaces, pass in a context, or execute all stored functions (options detailed below).
+`Linc.run( [ name, ] [ options ])` Executes all functions that are unscoped, and takes an optional options object to call specific namespaces, pass in a context, or execute all stored functions (options detailed below).
 
 `Linc.get( name )` Retrieves a module with `name` -- can be a name along with a namespace, like `widgetName.scope`, which will return the `widgetName` module in the `scope` namespace.
+
+`Linc.setDefaults([ options ])` set defaults such as default `context` or `namespace` that should be used when running or adding modules. 
 
 Widget Options
 ====

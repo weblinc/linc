@@ -1,5 +1,12 @@
 (function() {
-  var Linc, isArray, isFunction, isObject, parseNames, root, _ref;
+
+  /*
+  linc
+  js execution controller
+  @weblinc, @jsantell (c) 2012
+  */
+
+  var Linc, isArray, isFunction, isObject, root, _ref;
   var __hasProp = Object.prototype.hasOwnProperty;
 
   root = this;
@@ -14,80 +21,71 @@
   };
 
   Linc.add = function() {
-    var initFn, module, nSpace, name, nameObj, ns, _base, _i, _len, _ref;
-    nameObj = parseNames(arguments[0]);
+    var initFn, module, nMap, ns, options, _base, _i, _len, _ref, _ref2;
+    nMap = this._parseNames(arguments[0]);
+    options = this._makeOptions(arguments[1]);
     initFn = arguments[arguments.length - 1];
-    name = nameObj.name;
-    nSpace = nameObj.namespaces;
-    if (!name) return null;
+    if (!nMap.name) return null;
     module = {
-      options: isObject(arguments[1]) ? arguments[1] : {},
-      init: initFn
+      options: options,
+      init: initFn,
+      called: 0
     };
-    if (nSpace && nSpace.length) {
-      for (_i = 0, _len = nSpace.length; _i < _len; _i++) {
-        ns = nSpace[_i];
-        if ((_ref = (_base = this._functions)[ns]) == null) _base[ns] = {};
-        this._functions[ns][name] = module;
+    if (nMap.namespaces.length) {
+      _ref = nMap.namespaces;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        ns = _ref[_i];
+        ((_ref2 = (_base = this._functions)[ns]) != null ? _ref2 : _base[ns] = {})[nMap.name] = module;
       }
     } else {
-      this._functions[name] = module;
+      this._functions[nMap.name] = module;
     }
     return module;
   };
 
   Linc.get = function(name) {
-    var module, nameObj, ns;
-    nameObj = parseNames(name);
-    name = nameObj.name;
-    ns = nameObj.namespaces.shift();
-    return module = ns ? this._functions[ns][name] : this._functions[name];
+    var nMap, _ref;
+    nMap = this._parseNames(name);
+    return ((_ref = this._functions[nMap.namespaces.shift()]) != null ? _ref : this._functions)[nMap.name];
   };
 
   Linc.run = function() {
-    var all, args, context, data, funcs, key, module, nSpace, name, nameObj, namespaceOnly, ns, o, _i, _len, _ref, _ref2, _ref3, _ref4;
+    var all, args, context, data, key, module, nMap, name, ns, nsOnly, o, _i, _len, _ref, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
     args = arguments;
-    nameObj = args.length && !isObject(args[0]) ? parseNames(args[0]) : {};
-    name = nameObj.name;
-    nSpace = (_ref = nameObj.namespaces) != null ? _ref : this._defaults.namespace.slice(0);
-    o = isObject(args[args.length - 1]) ? args[args.length - 1] : {};
-    context = (_ref2 = o.context) != null ? _ref2 : this._defaults.context;
+    nMap = this._parseNames(arguments[0]);
+    o = this._makeOptions(arguments[arguments.length - 1]);
+    context = (_ref = o.context) != null ? _ref : this._defaults.context;
     all = o.all;
-    data = (_ref3 = o.data) != null ? _ref3 : [];
-    namespaceOnly = o.namespaceOnly;
+    data = o.data;
+    nsOnly = o.namespaceOnly;
     if (all) {
-      nSpace = (function() {
-        var _ref4, _results;
-        _ref4 = this._functions;
-        _results = [];
-        for (key in _ref4) {
-          if (!__hasProp.call(_ref4, key)) continue;
-          ns = _ref4[key];
-          if (!isFunction(ns.init)) _results.push(key);
-        }
-        return _results;
-      }).call(this);
-    }
-    if (!namespaceOnly) nSpace.push(null);
-    if (name) {
-      this.get(args[0]).init.call(context, data);
-    } else {
-      for (_i = 0, _len = nSpace.length; _i < _len; _i++) {
-        ns = nSpace[_i];
-        funcs = (_ref4 = this._functions[ns]) != null ? _ref4 : this._functions;
-        for (name in funcs) {
-          if (!__hasProp.call(funcs, name)) continue;
-          module = funcs[name];
-          if (isFunction(module.init)) {
-            if (!(module.options.once && module.called)) {
-              module.init.call(context, data);
-              module.called = true;
-            }
-          }
+      _ref2 = this._functions;
+      for (key in _ref2) {
+        if (!__hasProp.call(_ref2, key)) continue;
+        ns = _ref2[key];
+        if (!isFunction(ns.init)) {
+          ((_ref3 = nMap.namespaces) != null ? _ref3 : nMap.namespaces = []).push(key);
         }
       }
     }
-    return Linc;
+    if (!nsOnly) {
+      ((_ref4 = nMap.namespaces) != null ? _ref4 : nMap.namespaces = []).push(null);
+    }
+    if (nMap.name) {
+      this._call(this.get(args[0]), context, data);
+    } else {
+      _ref5 = nMap.namespaces;
+      for (_i = 0, _len = _ref5.length; _i < _len; _i++) {
+        ns = _ref5[_i];
+        _ref7 = (_ref6 = this._functions[ns]) != null ? _ref6 : this._functions;
+        for (name in _ref7) {
+          if (!__hasProp.call(_ref7, name)) continue;
+          module = _ref7[name];
+          this._call(module, context, data);
+        }
+      }
+    }
+    return this;
   };
 
   Linc.setDefaults = function(o) {
@@ -96,10 +94,7 @@
       if (!__hasProp.call(o, option)) continue;
       value = o[option];
       if (option === 'namespace') {
-        this._defaults[option] = isArray(value) ? value : [];
-        if (!this._defaults[option].length && value) {
-          this._defaults[option].push(value);
-        }
+        this._defaults[option] = isArray(value) ? value : [value];
       } else {
         this._defaults[option] = value;
       }
@@ -107,13 +102,31 @@
     return this._defaults;
   };
 
-  parseNames = function(s) {
+  Linc._call = function(module, context, data) {
+    if (isFunction(module.init)) {
+      if (!(module.options.once && module.called)) {
+        module.init.call(context, data);
+        return module.called++;
+      }
+    }
+  };
+
+  Linc._parseNames = function(s) {
     var returnObj, split, _ref, _ref2;
+    if (!s || isObject(s)) s = '';
     split = s.match(/^([^\.]*)?(?:\.(.+))?$/);
     return returnObj = {
       name: split[1],
-      namespaces: (_ref = (_ref2 = split[2]) != null ? _ref2.split('.') : void 0) != null ? _ref : Linc._defaults.namespace.slice(0)
+      namespaces: (_ref = (_ref2 = split[2]) != null ? _ref2.split('.') : void 0) != null ? _ref : this._defaults.namespace.slice(0)
     };
+  };
+
+  Linc._makeOptions = function(o) {
+    if (isObject(o)) {
+      return o;
+    } else {
+      return {};
+    }
   };
 
   isArray = (_ref = Array.isArray) != null ? _ref : function(o) {
