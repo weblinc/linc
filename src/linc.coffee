@@ -23,9 +23,9 @@ Linc.add = ( args... ) ->
   return null unless nMap.name
 
   module =
-    options : options
-    init    : initFn
-    called  : 0
+    _options : options
+    _init    : initFn
+    _called  : 0
 
   if nMap.namespaces.length
     for ns in nMap.namespaces
@@ -48,7 +48,7 @@ Linc.run = ( args... ) ->
 
   if all
     for own key, ns of @_functions
-      unless isFunction ns.init
+      unless isFunction ns._init
         ( nMap.namespaces ?= [] ).push key
 
   ( nMap.namespaces ?= [] ).push null unless nsOnly
@@ -71,10 +71,10 @@ Linc.setDefaults = ( o ) ->
 # Linc Utilites
 
 Linc._call = ( module, context, data ) ->
-  if isFunction( module.init )
-    unless module.options.once and module.called
-      module.init.call context, data
-      module.called++
+  if isFunction( module._init )
+    unless module._options.once and module._called
+      module._init.call context, data
+      module._called++
 
 Linc._parseNames = ( s ) ->
   s = '' if not s or isObject s 

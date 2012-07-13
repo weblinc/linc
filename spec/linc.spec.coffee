@@ -22,15 +22,15 @@ describe 'add', ->
       expect( Linc._functions.widgetA ).toBeTruthy()
       expect( Linc._functions.widgetB ).toBeTruthy()
     it 'should add widget with correct options and initFn', ->
-      expect( Linc._functions.widgetA.init ).toBe a_fn
-      expect( Linc._functions.widgetB.init ).toBe b_fn
-      expect( Linc._functions.widgetA.options.once ).toBeFalsy()
-      expect( Linc._functions.widgetB.options.once ).toBeTruthy()
+      expect( Linc._functions.widgetA._init ).toBe a_fn
+      expect( Linc._functions.widgetB._init ).toBe b_fn
+      expect( Linc._functions.widgetA._options.once ).toBeFalsy()
+      expect( Linc._functions.widgetB._options.once ).toBeTruthy()
     it 'should return the module when adding', ->
       wA.testVal = 'death metal'
       wB.testVal = 'rocks'
-      expect( Linc._functions.widgetA.init ).toBe a_fn
-      expect( Linc._functions.widgetB.init ).toBe b_fn
+      expect( Linc._functions.widgetA._init ).toBe a_fn
+      expect( Linc._functions.widgetB._init ).toBe b_fn
       expect( Linc._functions.widgetA.testVal ).toEqual wA.testVal
       expect( Linc._functions.widgetB.testVal ).toEqual wB.testVal
 
@@ -44,9 +44,9 @@ describe 'add', ->
       expect( Linc._functions.widgetY ).toBeFalsy()
       expect( Linc._functions.widgetZ ).toBeFalsy()
     it 'should add widget to namespace in fn store', ->
-      expect( Linc._functions.namespaceA.widgetX.init ).toBe x_fn
-      expect( Linc._functions.namespaceB.widgetY.init ).toBe y_fn
-      expect( Linc._functions.namespaceA.widgetZ.init ).toBeTruthy()
+      expect( Linc._functions.namespaceA.widgetX._init ).toBe x_fn
+      expect( Linc._functions.namespaceB.widgetY._init ).toBe y_fn
+      expect( Linc._functions.namespaceA.widgetZ._init ).toBeTruthy()
 
 describe 'run', ->
 
@@ -147,7 +147,7 @@ describe 'setDefaults', ->
     # Checks default context
     expect( context ).toBe( root )
     # Checks default namespace
-    expect( Linc._functions.contextWidget.init ).toBeTruthy()
+    expect( Linc._functions.contextWidget._init ).toBeTruthy()
 
   it 'should use set defaults for context', ->
     testContext = { test: 'context' }
@@ -170,13 +170,13 @@ describe 'get', ->
     wB = Linc.add 'testGetB', b_fn
     expect( Linc.get( 'testGetA' )).toBe wA
     expect( Linc.get( 'testGetB' )).toBe wB
-    expect( Linc.get( 'testGetA' ).init).toBe a_fn
-    expect( Linc.get( 'testGetB' ).init).toBe b_fn
+    expect( Linc.get( 'testGetA' )._init).toBe a_fn
+    expect( Linc.get( 'testGetB' )._init).toBe b_fn
   
   it 'should return the correct scoped module', ->
     wC = Linc.add 'testGetC.scope', ( c_fn = jasmine.createSpy() )
     wD = Linc.add 'testGetD.scope', ( d_fn = jasmine.createSpy() )
     expect( Linc.get( 'testGetC.scope' )).toBe wC
     expect( Linc.get( 'testGetD.scope' )).toBe wD
-    expect( Linc.get( 'testGetC.scope' ).init).toBe c_fn
-    expect( Linc.get( 'testGetD.scope' ).init).toBe d_fn
+    expect( Linc.get( 'testGetC.scope' )._init).toBe c_fn
+    expect( Linc.get( 'testGetD.scope' )._init).toBe d_fn
