@@ -28,9 +28,9 @@
     initFn = args.pop();
     if (!nMap.name) return null;
     module = {
-      options: options,
-      init: initFn,
-      called: 0
+      _options: options,
+      _init: initFn,
+      _called: 0
     };
     if (nMap.namespaces.length) {
       _ref = nMap.namespaces;
@@ -64,7 +64,7 @@
       for (key in _ref2) {
         if (!__hasProp.call(_ref2, key)) continue;
         ns = _ref2[key];
-        if (!isFunction(ns.init)) {
+        if (!isFunction(ns._init)) {
           ((_ref3 = nMap.namespaces) != null ? _ref3 : nMap.namespaces = []).push(key);
         }
       }
@@ -104,10 +104,10 @@
   };
 
   Linc._call = function(module, context, data) {
-    if (isFunction(module.init)) {
-      if (!(module.options.once && module.called)) {
-        module.init.call(context, data);
-        return module.called++;
+    if (isFunction(module._init)) {
+      if (!(module._options.once && module._called)) {
+        module._init.call(context, data);
+        return module._called++;
       }
     }
   };
