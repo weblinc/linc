@@ -113,12 +113,12 @@
   };
 
   Linc._parseNames = function(s) {
-    var returnObj, split, _ref, _ref2;
+    var returnObj, split;
     if (!s || isObject(s)) s = '';
     split = s.match(/^([^\.]*)?(?:\.(.+))?$/);
     return returnObj = {
       name: split[1],
-      namespaces: (_ref = (_ref2 = split[2]) != null ? _ref2.split('.') : void 0) != null ? _ref : this._defaults.namespace.slice(0)
+      namespaces: split[2] ? split[2].split('.') : this._defaults.namespace.slice(0)
     };
   };
 

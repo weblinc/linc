@@ -81,7 +81,7 @@ Linc._parseNames = ( s ) ->
   split = s.match /^([^\.]*)?(?:\.(.+))?$/
   returnObj =
     name       : split[1]
-    namespaces : split[2]?.split('.') ? @_defaults.namespace.slice 0
+    namespaces : if split[2] then split[2].split('.') else @_defaults.namespace.slice 0
 
 Linc._makeOptions = ( o ) ->
   if isObject( o ) then o else {}
