@@ -1,6 +1,8 @@
 linc
 ====
 
+## There is a new, different version of this software now available. It's called (Modcon)[http://github.com/weblinc/modcon]. Check it out!
+
 js execution controller for the browser or node.js
 
 Installation
